@@ -1,36 +1,22 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ryhox — portfolio
 
-## Getting Started
-
-First, run the development server:
+Next.js 16 + React Three Fiber + GSAP ScrollTrigger + Lenis.
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Where things live
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `src/content.ts` — all copy: statement, projects (with images in `public/work/`), socials.
+- `src/components/Motion.tsx` — DOM scroll choreography (word reveal, marquee, pinned horizontal gallery, "Say hi").
+- `src/components/three/` — the 3D layer: liquid hero lettering, glass bubbles, Y2K charms, holographic shader (`materials.ts`).
+- `src/components/three/Cat.tsx` — the chonky cat rig (procedural gait, hops, bubble juggling). Currently parked; mount `<Cat />` and `<PlayBubble />` in `Scene.tsx` to bring it back.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Asset scripts
 
-## Learn More
+- `npm run letters` — re-bakes `public/models/letters.glb` from the stroke definitions in `src/components/three/liquidLetters.ts`.
+- `npm run cat` — strips the Sketchfab trio down to one cat (`public/models/cat.glb`).
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The cat model is "Chonky Cat Trio" by Kanna-Nakajima, CC BY 4.0 — credit it on the page when the cat is shown.
