@@ -1,3 +1,8 @@
+import { floorLift } from "./stage";
+
+// Work that must run right after Lenis has moved the page and before anything renders (same frame).
+export const afterScroll = new Set<(time: number, deltaMs: number) => void>();
+
 // Shared, mutable scroll state read inside the render loop (no React re-renders).
 export const scroll = {
   y: 0,
@@ -11,6 +16,8 @@ export const scroll = {
   anchors: {} as Record<string, number>,
   // Centers (px from the gallery track start) of the gaps around the project panels.
   galleryGaps: [] as number[],
+  // Document-space y (px) of the floor the page ends on (the meadow, see Backdrop).
+  floor: Infinity,
 };
 
 export function measureSections() {
@@ -20,6 +27,8 @@ export function measureSections() {
     scroll.anchors[el.dataset.section!] = el.getBoundingClientRect().top + window.scrollY;
   }
   scroll.vh = window.innerHeight;
+  const contact = document.querySelector<HTMLElement>(".contact");
+  scroll.floor = contact ? contact.getBoundingClientRect().bottom + window.scrollY - floorLift(window.innerWidth) : Infinity;
 
   const track = document.querySelector<HTMLElement>(".work-track");
   if (track) {

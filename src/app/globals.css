@@ -1,9 +1,48 @@
 :root {
-  --ink: #f3edff;
-  --ink-soft: #b7abd9;
-  --ink-faint: #756a99;
-  --bg: #0d0a1a;
-  --holo: linear-gradient(100deg, #b9a2ff 0%, #f7a8dc 35%, #9ccbff 68%, #c6b0ff 100%);
+  /* 0 by day, 1 at night (set from the scroll over the About section, see Motion.tsx): the ink follows. */
+  --night: 0;
+  --ink-day: #0f2257;
+  --ink-soft-day: #233d7a;
+  --ink-faint-day: #3f5894;
+  --ink-night: #f4f7ff;
+  --ink-soft-night: #c6d1f0;
+  --ink-faint-night: #93a2cf;
+  --ink: color-mix(in oklab, var(--ink-day), var(--ink-night) calc(var(--night) * 100%));
+  --ink-soft: color-mix(in oklab, var(--ink-soft-day), var(--ink-soft-night) calc(var(--night) * 100%));
+  --ink-faint: color-mix(in oklab, var(--ink-faint-day), var(--ink-faint-night) calc(var(--night) * 100%));
+  --bg: #5ea8ef;
+  --sky: linear-gradient(180deg, #2f7fe2 0%, #5ea8ef 55%, #a4d2f7 100%);
+
+  /* Y2K chrome: pearly silver with a holographic film (pink, cyan, gold, lavender) sliding over it, a
+     bright horizon band, a navy edge and a wet highlight. */
+  --chrome: linear-gradient(180deg, #ffffff 0%, #fbeef8 14%, #d9e6f6 38%, #a9b4d0 50%, #cfe9ef 64%, #f6ecd6 80%, #ffffff 100%);
+  /* Chrome lettering: pale sky reflected on top, a hard dark horizon, an iridescent ground below. */
+  --chrome-text: linear-gradient(
+    180deg,
+    #ffffff 4%,
+    #e8f5ff 20%,
+    #a9d4fb 42%,
+    #f4fbff 48.5%,
+    #34427a 49.5%,
+    #6a6fb8 55%,
+    #d99be0 68%,
+    #ffd6a6 82%,
+    #fff7ea 96%
+  );
+  --chrome-edge: #26396e;
+  /* Pearl, for the headlines: pink, white and baby-blue streaks across each letter. */
+  --pearl: linear-gradient(100deg, #ffffff 0%, #ffc4ec 15%, #ffffff 29%, #c2e0ff 43%, #efc8ff 57%, #ffffff 69%, #b4d6ff 84%, #ffd6f2 100%);
+  --chrome-ring:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 6px rgba(60, 80, 125, 0.28),
+    0 0 0 1px rgba(64, 82, 124, 0.55),
+    0 0 0 3px rgba(255, 255, 255, 0.55),
+    0 10px 22px -10px rgba(18, 42, 100, 0.55);
+  --peri: linear-gradient(180deg, #e3e5ff 0%, #aeb3f7 38%, #7a82e6 54%, #949bf0 78%, #c9ccff 100%);
+  --gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.08));
+  --accent: #6d74e4;
+  --pink: #f590d0;
+  --gold: #ffc93c;
   --gutter: clamp(20px, 5vw, 96px);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -19,13 +58,14 @@ html {
   overflow-x: clip;
   background: var(--bg);
   color: var(--ink);
+  text-shadow: 0 1px 1px rgb(255 255 255 / calc(0.45 * (1 - var(--night))));
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 body {
-  background: linear-gradient(180deg, #171029 0%, #120d22 50%, #0a0c1c 100%) fixed;
+  background: var(--sky) fixed;
   min-height: 100vh;
   overflow-x: clip;
 }
@@ -41,8 +81,8 @@ img {
 }
 
 ::selection {
-  background: #f6c6e6;
-  color: #1a1030;
+  background: #c6e2ff;
+  color: #13265a;
 }
 
 .sr-only {
@@ -52,6 +92,81 @@ img {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ---------- Y2K chrome, shared ---------- */
+
+/* Y2K headlines, like a chrome logo: blocky Bungee filled with pearl (a soft white shine on top), a pink
+   rim, a stepped purple 3D extrusion and a soft cast shadow, so they pop on the day sky and at night.
+   Rim and extrusion are drop-shadows (a text stroke would trace the font's inner contours).
+   (Each .char gets vertical room so the fill covers the whole glyph; the negative margin keeps the
+   layout exactly as it was.) */
+.ab-title .char,
+.work-heading .char,
+.more-title .char,
+.sayhi .char,
+.nf-code {
+  padding-block: 0.14em;
+  margin-block: -0.14em;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 44%, rgba(120, 50, 160, 0.16) 100%),
+    var(--pearl);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+}
+
+.ab-title,
+.work-heading,
+.more-title,
+.sayhi,
+.nf-code {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0.01em;
+  filter: drop-shadow(0 0 0.7px #c24fc8) drop-shadow(0 0 0.6px #c24fc8) drop-shadow(0 0.024em 0 #e7a3ec)
+    drop-shadow(0 0.024em 0 #a84dc0) drop-shadow(0 0.024em 0 #6a2b8e) drop-shadow(0 0.12em 0.14em rgba(38, 18, 84, 0.42));
+}
+
+/* A chrome capsule button with a wet highlight across its top half. */
+.chrome-pill {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--chrome);
+  box-shadow: var(--chrome-ring);
+  color: var(--ink-day);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+  transition:
+    box-shadow 0.4s var(--ease-out),
+    filter 0.4s var(--ease-out);
+}
+
+.chrome-pill::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  left: 9%;
+  right: 9%;
+  top: 2px;
+  height: 46%;
+  border-radius: 999px;
+  background: var(--gloss);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.chrome-pill:hover {
+  filter: brightness(1.04) saturate(1.1);
+  box-shadow:
+    var(--chrome-ring),
+    0 0 0 5px rgba(255, 255, 255, 0.35),
+    0 12px 30px -8px rgba(90, 100, 230, 0.55);
 }
 
 /* ---------- 3D layer + preloader ---------- */
@@ -68,11 +183,12 @@ main {
   z-index: 1;
 }
 
+/* The page's sky, so the WebGL curtain (IntroFX) that the bubbles pop through matches it pixel for pixel. */
 .loader {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: #0b0916;
+  background: var(--sky);
 
   display: flex;
   align-items: flex-end;
@@ -80,7 +196,7 @@ main {
   pointer-events: none;
 }
 
-/* Bubbly counter: puffy rounded digits with a glossy top highlight, bubbles rising behind. */
+/* Bubbly counter: puffy silver digits with a glossy top highlight. */
 .loader {
   overflow: hidden;
 }
@@ -101,16 +217,18 @@ main {
   position: relative;
   display: inline-block;
   transform-origin: 50% 85%;
-  color: #eadcff;
+  color: #eef2f9;
   text-shadow:
-    0 0.02em 0 #cdb6f5,
-    0 0.05em 0.1em rgba(10, 4, 26, 0.55);
+    0 0.025em 0 #a9b5cc,
+    0 0.05em 0 #6f7e9f,
+    0 0.1em 0.14em rgba(8, 26, 76, 0.45);
   will-change: transform;
 }
 
 /* Glossy "wet" highlight: the same glyph, white fading out halfway down. */
 .loader-digit::after {
   content: attr(data-d);
+  text-shadow: none;
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.35) 30%, rgba(255, 255, 255, 0) 46%);
@@ -125,8 +243,8 @@ main {
   align-self: flex-start;
   margin: 0.2em 0 0 0.06em;
   font-size: 0.34em;
-  color: #eadcff;
-  opacity: 0.85;
+  color: #eef2f9;
+  opacity: 0.9;
 }
 
 /* ---------- Stage (cat layer above the page) + bubble wand ---------- */
@@ -136,29 +254,6 @@ main {
   inset: 0;
   z-index: 15;
   pointer-events: none;
-}
-
-.wand {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 60;
-  width: 64px;
-  height: 132px;
-  margin: -32px 0 0 -32px;
-  transform-origin: 32px 32px;
-  pointer-events: none;
-  opacity: 0;
-  filter: drop-shadow(0 6px 14px rgba(20, 8, 40, 0.45));
-  transition: opacity 0.25s ease;
-}
-
-.wand .wand-film {
-  opacity: var(--film, 1);
-}
-
-html.wand-on .wand {
-  opacity: 1;
 }
 
 html.wand-on .contact,
@@ -174,8 +269,9 @@ html.wand-on .contact a * {
 /* Surfaces the cat stands on give way under its weight (animated from JS). */
 .statement .w,
 .char-mask,
+.ticker,
 .panel-media,
-.intro-note {
+.more-icon {
   translate: 0 var(--dip, 0px);
 }
 
@@ -199,7 +295,8 @@ html.wand-on .contact a * {
   display: block;
 }
 
-a:hover .roll-inner {
+a:hover .roll-inner,
+button:hover .roll-inner {
   transform: translateY(-50%);
 }
 
@@ -209,8 +306,8 @@ a:hover .roll-inner {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 25;
-  height: 3px;
-  background: rgba(243, 237, 255, 0.08);
+  height: 4px;
+  background: rgba(255, 255, 255, 0.35);
   pointer-events: none;
   transition: opacity 0.6s ease;
 }
@@ -219,10 +316,11 @@ a:hover .roll-inner {
   opacity: 0;
 }
 
+/* Navy by day, a bright blue once night falls over the About section. */
 .progress-fill {
   position: absolute;
   inset: 0;
-  background: #e9dcff;
+  background: color-mix(in oklab, var(--ink-day), #4da3ff calc(var(--night) * 100%));
   transform: scaleX(0);
   transform-origin: left center;
   will-change: transform;
@@ -241,23 +339,70 @@ a:hover .roll-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px var(--gutter);
-  mix-blend-mode: difference;
-  color: #fff;
+  padding: 20px var(--gutter);
+  color: var(--ink);
 }
 
 .nav-mark {
   font-family: var(--font-display), sans-serif;
-  font-weight: 800;
-  font-size: 1.35rem;
-  letter-spacing: -0.03em;
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 0 color-mix(in oklab, rgba(255, 255, 255, 0.7), transparent calc(var(--night) * 100%));
 }
 
 .nav-links {
   display: flex;
-  gap: clamp(18px, 3vw, 44px);
-  font-size: 0.95rem;
-  font-weight: 500;
+  gap: 10px;
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+/* Glossy aqua glass capsule: see-through blue, a white rim, a wet highlight, dark blue lettering. */
+.glass-pill {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 1.35rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(222, 240, 255, 0.75) 0%, rgba(140, 196, 246, 0.6) 48%, rgba(96, 164, 236, 0.72) 52%, rgba(170, 214, 252, 0.85) 100%);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.95),
+    inset 0 -3px 8px rgba(255, 255, 255, 0.55),
+    0 3px 8px -2px rgba(24, 64, 140, 0.4);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--ink-day);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+  transition:
+    box-shadow 0.4s var(--ease-out),
+    filter 0.4s var(--ease-out);
+}
+
+.glass-pill::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 7%;
+  right: 7%;
+  top: 2px;
+  height: 48%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.15));
+  pointer-events: none;
+}
+
+.glass-pill:hover {
+  filter: brightness(1.08) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1.5px #fff,
+    inset 0 -3px 8px rgba(255, 255, 255, 0.6),
+    0 0 0 4px rgba(255, 255, 255, 0.35),
+    0 6px 18px -4px rgba(40, 110, 230, 0.6);
 }
 
 /* ---------- Hero ---------- */
@@ -294,12 +439,12 @@ a:hover .roll-inner {
 
 .scroll-cue-text {
   display: flex;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 700;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 800;
   font-size: 0.74rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--ink-day);
 }
 
 .cue-char {
@@ -328,8 +473,9 @@ a:hover .roll-inner {
 
 .scroll-cue-line {
   width: 56px;
-  height: 1px;
-  background: rgba(243, 237, 255, 0.18);
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(19, 38, 90, 0.18);
   position: relative;
   overflow: hidden;
 }
@@ -338,7 +484,7 @@ a:hover .roll-inner {
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--ink);
+  background: var(--ink-day);
   transform-origin: left center;
   animation: cue-line 3.2s cubic-bezier(0.76, 0, 0.24, 1) infinite;
 }
@@ -362,19 +508,431 @@ a:hover .roll-inner {
   }
 }
 
-/* ---------- Intro statement ---------- */
+/* ---------- About: statement → pinned constellation stage (night) ---------- */
+/* (The sky is WebGL, see AboutSky.tsx + Backdrop.tsx; choreography in Motion.tsx.) */
 
-.intro {
-  padding: 6vh var(--gutter) 22vh;
+.about {
+  position: relative;
+}
+
+.about-intro {
+  padding: 14svh var(--gutter) 16svh;
+}
+
+.about-intro + .ticker {
+  margin-bottom: 18svh;
+}
+
+.about-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  margin: 8svh 0 0 auto;
+  max-width: 26rem;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.about-kicker span:first-child {
+  color: var(--ink);
+}
+
+.about-stage {
+  position: relative;
+  height: 100svh;
+}
+
+.ab-meta {
+  position: absolute;
+  right: var(--gutter);
+  top: 13svh;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(-12px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.9s var(--ease-out);
+}
+
+/* It shows up with the first constellation (Motion.tsx toggles .is-on). */
+.ab-meta.is-on {
+  opacity: 1;
+  transform: none;
+}
+
+/* The figure's name, in a small chrome capsule that rolls with the count. */
+.ab-name {
+  display: inline-block;
+  height: 2rem;
+  padding: 0 0.95rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--chrome);
+  box-shadow: var(--chrome-ring);
+  color: var(--ink-day);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 2rem;
+}
+
+.ab-name-strip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  will-change: transform;
+}
+
+.ab-count {
+  display: inline-block;
+  height: 1.1em;
+  line-height: 1.1;
+  overflow: hidden;
+  font-size: 2.6rem;
+  letter-spacing: -0.04em;
+}
+
+.ab-count-strip {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.ab-of {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+.ab-list {
+  list-style: none;
+  position: absolute;
+  left: var(--gutter);
+  bottom: 13svh;
+  width: min(46vw, 44rem);
+}
+
+.ability {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  visibility: hidden;
+}
+
+.ability.is-on {
+  visibility: visible;
+}
+
+.ab-title {
+  margin-top: 0;
+  font-size: clamp(2.8rem, 5.4vw, 6.6rem);
+  line-height: 0.98;
+  text-transform: uppercase;
+  perspective: 900px;
+}
+
+.ab-title .char {
+  transform-origin: 50% 100%;
+}
+
+.ab-line {
+  margin-top: 1.8rem;
+  max-width: 32rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.ab-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+  margin-top: 1.3rem;
+  font-size: 0.95rem;
+  color: var(--ink-faint);
+}
+
+.ab-proof a,
+.ab-proof em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.ab-proof a {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.24em;
+  text-decoration-color: rgba(255, 201, 60, 0.7);
+  transition: text-decoration-color 0.3s ease;
+}
+
+.ab-proof a:hover {
+  text-decoration-color: var(--gold);
+}
+
+/* Tool names riding next to their stars (positioned every frame by AboutSky). */
+.sky-labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sky-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0.34em 0.7em 0.36em;
+  border-radius: 999px;
+  background: rgba(14, 26, 66, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #f4f7ff;
+  will-change: transform, opacity;
+}
+
+.sky-label.is-key {
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.sky-label i {
+  margin-right: 0.4em;
+  font-style: normal;
+  font-family: var(--font-sans), monospace;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--gold);
+}
+
+.sky-label.is-hot,
+.sky-label:hover {
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink-day);
+}
+
+/* Only a lit star can be hovered / clicked (AboutSky toggles .is-live). */
+.sky-label.is-live {
+  pointer-events: auto;
+}
+
+.sky-name {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+/* The star itself: a round target sitting right on it, with a ring that snaps on when you're there. */
+.sky-hit {
+  position: absolute;
+  left: -24px;
+  top: -24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.sky-hit::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, 0.9),
+    0 0 16px rgba(190, 215, 255, 0.8);
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    opacity 0.2s ease,
+    transform 0.45s var(--ease-out);
+}
+
+.sky-label.is-hot .sky-hit::before,
+.sky-label:hover .sky-hit::before {
+  opacity: 1;
+  transform: none;
+  animation: sky-ring 1.6s ease-in-out 0.45s infinite;
+}
+
+@keyframes sky-ring {
+  50% {
+    transform: scale(1.18);
+    opacity: 0.6;
+  }
+}
+
+/* The hover card: a little Y2K browser window. A chrome title bar, what the tool is, and its address
+   typing itself into the URL field. */
+.sky-card {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 0.6rem);
+  width: 18rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgba(246, 250, 255, 0.94);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 0 1px rgba(64, 82, 124, 0.45),
+    0 0 0 3px rgba(255, 255, 255, 0.4),
+    0 22px 44px -18px rgba(0, 0, 0, 0.7);
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: 0.92rem;
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
+  white-space: normal;
+  color: var(--ink-day);
+  text-shadow: none;
+  opacity: 0;
+  transform: translateY(6px) scale(0.97);
+  transform-origin: 0 0;
+  transition:
+    opacity 0.25s ease,
+    transform 0.45s var(--ease-out);
+  pointer-events: none;
+}
+
+.sky-card-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 2rem;
+  padding: 0 12px;
+  background: var(--chrome);
+  box-shadow: inset 0 -1px 0 rgba(64, 82, 124, 0.4);
+}
+
+.sky-card-bar > i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 18%, #f590d0 45%, #d45fae);
+  box-shadow: 0 0 0 1px rgba(64, 82, 124, 0.35);
+}
+
+.sky-card-bar > i:nth-child(2) {
+  background: radial-gradient(circle at 35% 30%, #fff 0 18%, #ffd35c 45%, #e0a51c);
+}
+
+.sky-card-bar > i:nth-child(3) {
+  background: radial-gradient(circle at 35% 30%, #fff 0 18%, #7cc3ff 45%, #3f8fea);
+}
+
+.sky-card-title {
+  margin-left: 6px;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 800;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-day);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.sky-card-info {
+  padding: 0.8rem 1rem 0.5rem;
+}
+
+.sky-card-url {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0.8rem 0.85rem;
+  height: 1.9rem;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 1px 3px rgba(40, 60, 110, 0.3), inset 0 0 0 1px rgba(64, 82, 124, 0.25);
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+}
+
+.sky-card-url svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--ink-faint-day);
+}
+
+.sky-type {
+  flex: 1;
+}
+
+.sky-type > span {
+  opacity: 0;
+}
+
+.sky-label:hover .sky-type > span,
+.sky-label:focus-visible .sky-type > span {
+  opacity: 1;
+  transition: opacity 0.05s calc(0.2s + var(--i) * 28ms);
+}
+
+.sky-go {
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.sky-label:hover .sky-card,
+.sky-label:focus-visible .sky-card {
+  opacity: 1;
+  transform: none;
+}
+
+.sky-label.is-flip .sky-card {
+  left: auto;
+  right: 0;
+  transform-origin: 100% 0;
+}
+
+.sky-label.is-up .sky-card {
+  top: auto;
+  bottom: calc(100% + 0.6rem);
+  transform-origin: 0 100%;
 }
 
 .statement {
-  font-family: var(--font-display), sans-serif;
-  font-weight: 700;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 800;
   font-size: clamp(2.1rem, 5.4vw, 6rem);
   line-height: 1;
   letter-spacing: -0.035em;
   max-width: 16ch;
+  color: var(--ink);
 }
 
 .statement .w {
@@ -383,7 +941,7 @@ a:hover .roll-inner {
   will-change: opacity, transform, filter;
 }
 
-/* Highlighter: one flat pastel stroke behind the words, drawn left→right as you read. */
+/* Highlighter: a glossy pastel stroke behind the words, drawn left→right as you read. */
 .statement .mark {
   position: relative;
   z-index: 0;
@@ -397,9 +955,10 @@ a:hover .roll-inner {
   left: -0.05em;
   right: -0.02em;
   top: 0.3em;
-  bottom: 0.14em;
-  background: #f5a3d8;
-  opacity: 0.42;
+  bottom: 0.12em;
+  background: linear-gradient(180deg, #ffe0f3, #ffb8e3 55%, #f7a0d8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  opacity: 0.9;
   border-radius: 0.14em 0.3em 0.22em 0.12em;
   transform: skewX(-6deg) scaleX(var(--mark, 0));
   transform-origin: left center;
@@ -409,60 +968,200 @@ a:hover .roll-inner {
   right: 0.18em;
 }
 
-.intro-note {
-  margin: 8vh 0 0 auto;
-  max-width: 22rem;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--ink-soft);
-}
+/* ---------- Ticker: what I do, as a Y2K music player ---------- */
 
-/* ---------- Marquee ---------- */
-
-.marquee {
-  padding: 14vh 0;
-  overflow: hidden;
+/* A chrome capsule (like the other chrome bars) holding round player buttons, an LCD screen the words run
+   across, and a little equaliser. */
+.ticker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 var(--gutter);
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--chrome);
+  box-shadow: var(--chrome-ring);
+  text-shadow: none;
   pointer-events: none;
 }
 
-.marquee-row {
+.tk-controls {
   display: flex;
-  white-space: nowrap;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 800;
-  font-size: clamp(4rem, 12vw, 13rem);
-  line-height: 1;
-  letter-spacing: -0.045em;
+  gap: 6px;
+}
+
+.tk-btn {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--chrome);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 -2px 4px rgba(60, 80, 125, 0.3),
+    0 0 0 1px rgba(64, 82, 124, 0.5),
+    0 3px 6px -2px rgba(18, 42, 100, 0.4);
+  color: var(--ink-day);
+}
+
+.tk-btn.is-play {
+  width: 40px;
+  height: 40px;
+  background: var(--peri);
+  color: #fff;
+}
+
+.tk-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.tk-btn.is-play svg {
+  width: 17px;
+  height: 17px;
+  filter: drop-shadow(0 1px 1px rgba(40, 46, 140, 0.5));
+}
+
+.tk-btn .tk-play {
+  display: none;
+  margin-left: 2px;
+}
+
+.ticker.is-paused .tk-btn .tk-play {
+  display: block;
+}
+
+.ticker.is-paused .tk-btn .tk-pause {
+  display: none;
+}
+
+.tk-btn:hover {
+  filter: brightness(1.08);
+}
+
+.tk-btn:focus-visible {
+  outline: 2px solid var(--ink-day);
+  outline-offset: 3px;
+}
+
+/* The screen: dark blue glass, glowing cyan type. */
+.tk-lcd {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #0a1638, #142a62 55%, #0f2250);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(120, 180, 255, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.8);
+  font-family: var(--font-ui), sans-serif;
+}
+
+.tk-label .tk-off,
+.ticker.is-paused .tk-label .tk-on {
+  display: none;
+}
+
+.ticker.is-paused .tk-label .tk-off {
+  display: inline;
+}
+
+.tk-label {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  will-change: transform;
+  color: rgba(150, 215, 255, 0.55);
 }
 
-.marquee-row.is-reverse {
-  color: rgba(243, 237, 255, 0.16);
+.ticker-window {
+  flex: 1;
+  overflow: hidden;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
 
-.marquee-inner {
+/* The equaliser bars bounce, out of step. */
+.tk-eq {
   display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 26px;
+  padding-right: 8px;
+}
+
+.tk-eq i {
+  width: 4px;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ff9ad8, #9fa6f5 45%, #6cc4ff);
+  transform-origin: bottom;
+  animation: tk-eq 0.9s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -0.23s);
+}
+
+/* Paused: the bars sink and rest. */
+.ticker.is-paused .tk-eq i {
+  animation: none;
+  transform: scaleY(0.16);
+  transition: transform 0.4s var(--ease-out);
+}
+
+@keyframes tk-eq {
+  0% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(0.9);
+  }
+  100% {
+    transform: scaleY(0.45);
+  }
+}
+
+.ticker-inner {
+  display: flex;
+  width: max-content;
   will-change: transform;
 }
 
-.marquee-chunk {
+.ticker-chunk {
   display: flex;
   flex-shrink: 0;
 }
 
-.marquee-word {
+.ticker-word {
   display: inline-flex;
   align-items: center;
-  gap: 0.25em;
-  padding-right: 0.25em;
+  gap: 1.2rem;
+  padding-right: 1.2rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #c4f0ff;
+  text-shadow: 0 0 8px rgba(110, 210, 255, 0.75);
 }
 
-.marquee-star {
-  width: 0.42em;
-  height: 0.42em;
-  fill: #f2a9dc;
-  flex-shrink: 0;
+.ticker-word svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  fill: var(--gold);
+  filter: drop-shadow(0 0 4px rgba(255, 200, 60, 0.8));
 }
 
 /* ---------- Work: horizontal gallery ---------- */
@@ -492,17 +1191,14 @@ a:hover .roll-inner {
 }
 
 .work-heading {
-  font-family: var(--font-display), sans-serif;
-  font-weight: 800;
-  font-size: clamp(4.5rem, 12vw, 13rem);
-  line-height: 0.86;
-  letter-spacing: -0.05em;
+  font-size: clamp(3.6rem, 9.4vw, 10.5rem);
+  line-height: 0.98;
   text-transform: uppercase;
 }
 
 .work-count {
-  font-family: var(--font-display), sans-serif;
-  font-weight: 600;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
   font-size: 1.4rem;
   color: var(--ink-soft);
   padding-bottom: 1.2rem;
@@ -537,15 +1233,32 @@ a:hover .roll-inner {
   will-change: transform;
 }
 
+/* (Flat, not preserve-3d: the tilt turns the picture as one piece, so the video and the overlays on it
+   never fight over depth and flicker.) */
 .panel-media {
   position: relative;
-  transform-style: preserve-3d;
+  display: block;
   will-change: transform, clip-path;
   aspect-ratio: 16 / 10;
   max-height: 54svh;
   overflow: hidden;
   border-radius: 28px;
-  background: #1c1433;
+  background: #cfe3fa;
+}
+
+/* A glass frame, like a Y2K product card: a bright bevel, a soft inner glow, a sheen across the corner. */
+.panel-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0) 26%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.9),
+    inset 0 0 0 9px rgba(255, 255, 255, 0.22),
+    inset 0 0 36px rgba(255, 255, 255, 0.28);
+  pointer-events: none;
 }
 
 .panel-img {
@@ -556,81 +1269,547 @@ a:hover .roll-inner {
   transition: filter 0.6s ease;
 }
 
-.panel-go {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  width: 58px;
-  height: 58px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--holo);
-  color: #1a1030;
-  transform: scale(0) rotate(-45deg);
-  transition: transform 0.6s var(--ease-out);
-}
-
-.panel:hover .panel-go,
-.panel:focus-visible .panel-go {
-  transform: scale(1) rotate(0deg);
-}
-
 .panel:hover .panel-img {
   filter: saturate(1.15) brightness(1.05);
 }
 
+/* Number + name under the picture, nudged up so the name just overlaps its bottom edge. */
 .panel-info {
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-areas:
     "index title"
-    ". desc";
+    ". desc"
+    ". meta"
+    ". actions";
   column-gap: 1.4rem;
   align-items: baseline;
-  margin-top: -0.9em;
+  margin-top: clamp(-1.8rem, -1.5vw, -1rem);
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
 
 .panel-index {
   grid-area: index;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 600;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 800;
   font-size: 1rem;
   color: var(--ink-soft);
   font-variant-numeric: tabular-nums;
 }
 
+/* Project names: the headline face in solid dark blue, lifted off the sky by a thin white edge. */
 .panel-title {
   grid-area: title;
   font-family: var(--font-display), sans-serif;
-  font-weight: 800;
-  font-size: clamp(2.6rem, 5.6vw, 6.2rem);
-  line-height: 0.9;
-  letter-spacing: -0.045em;
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0.01em;
+  color: var(--ink-day);
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.55);
+  font-size: clamp(2rem, 4vw, 4.6rem);
+  line-height: 1;
   text-transform: uppercase;
-  mix-blend-mode: difference;
-  color: #fff;
 }
 
 .panel-desc,
 .panel-meta {
-  grid-column: 2;
-  font-size: 1rem;
+  font-size: 1.02rem;
   line-height: 1.5;
 }
 
 .panel-desc {
+  grid-area: desc;
   margin-top: 1rem;
-  color: var(--ink-soft);
+  font-weight: 500;
+  color: var(--ink);
   max-width: 38ch;
 }
 
 .panel-meta {
-  margin-top: 0.3rem;
-  font-size: 0.85rem;
-  color: var(--ink-faint);
+  grid-area: meta;
+  margin-top: 0.35rem;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ---------- What the buttons do to the picture (driven from ActionFx.tsx) ---------- */
+
+.mfx-browser,
+.mfx-ascii,
+.mfx-repo,
+.mfx-stamp {
+  position: absolute;
+  pointer-events: none;
+}
+
+.mfx-browser {
+  inset: 0;
+  z-index: 2;
+}
+
+/* Live demo: a chrome browser toolbar drops in and the real address types itself. */
+.mfx-bar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px;
+  background: var(--chrome);
+  box-shadow:
+    inset 0 -1px 0 rgba(64, 82, 124, 0.45),
+    0 4px 14px -6px rgba(18, 42, 100, 0.4);
+  transform: translateY(-102%);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.mfx-bar > i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 18%, #f590d0 45%, #d45fae);
+  box-shadow: 0 0 0 1px rgba(64, 82, 124, 0.35);
+}
+
+.mfx-bar > i:nth-child(2) {
+  background: radial-gradient(circle at 35% 30%, #fff 0 18%, #ffd35c 45%, #e0a51c);
+}
+
+.mfx-bar > i:nth-child(3) {
+  background: radial-gradient(circle at 35% 30%, #fff 0 18%, #7cc3ff 45%, #3f8fea);
+}
+
+.mfx-url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  min-width: 46%;
+  margin-left: 14px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 1px 3px rgba(40, 60, 110, 0.3);
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--ink-day);
+}
+
+.mfx-url svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--ink-faint-day);
+}
+
+.mfx-type > span {
+  opacity: 0;
+  transition: opacity 0.05s;
+}
+
+.mfx-caret {
+  width: 1.5px;
+  height: 1em;
+  margin-left: 1px;
+  background: currentColor;
+  opacity: 0;
+}
+
+.mfx-load {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, #9fd6ff, #aeb3f7, #f7a8dc);
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+}
+
+.panel.is-demo .mfx-bar {
+  transform: none;
+}
+
+.panel.is-demo .mfx-browser .mfx-type > span {
+  opacity: 1;
+  transition-delay: calc(0.28s + var(--i) * 34ms);
+}
+
+.panel.is-demo .mfx-browser .mfx-caret {
+  animation: mfx-caret 0.9s steps(1) infinite;
+}
+
+.panel.is-demo .mfx-load {
+  opacity: 1;
+  transform: scaleX(1);
+  transition:
+    transform 1.6s cubic-bezier(0.3, 0.7, 0.2, 1) 0.9s,
+    opacity 0.4s ease 2.4s;
+}
+
+.panel.is-demo .panel-img {
+  filter: saturate(1.2) brightness(1.06);
+}
+
+@keyframes mfx-caret {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Source code: the picture decodes into characters (canvas), and the repo path types in. */
+.mfx-ascii {
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+.mfx-repo {
+  left: 20px;
+  bottom: 20px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  padding: 0.5em 0.9em;
+  border-radius: 999px;
+  background: rgba(10, 22, 58, 0.86);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #eef2ff;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.5s var(--ease-out);
+}
+
+.panel.is-code .mfx-repo {
+  opacity: 1;
+  transform: none;
+}
+
+.panel.is-code .mfx-repo .mfx-type > span {
+  opacity: 1;
+  transition-delay: calc(0.35s + var(--i) * 22ms);
+}
+
+.panel.is-code .mfx-repo .mfx-caret {
+  animation: mfx-caret 0.9s steps(1) infinite;
+}
+
+/* No live demo: stamped. */
+.mfx-stamp {
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.55em 0.9em 0.6em;
+  border: 4px solid var(--accent);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--accent);
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3.4vw, 3.4rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-9deg) scale(1.7);
+  transition:
+    opacity 0.12s ease,
+    transform 0.3s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.mfx-stamp small {
+  font-weight: 700;
+  font-size: 0.34em;
+  letter-spacing: 0.14em;
+}
+
+.panel.is-none .mfx-stamp {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(-9deg) scale(1);
+}
+
+.panel.is-none .panel-img {
+  filter: grayscale(0.7) brightness(0.8);
+}
+
+.panel.is-none .panel-media {
+  animation: mfx-thud 0.42s ease-out 0.12s;
+}
+
+@keyframes mfx-thud {
+  0%,
+  100% {
+    translate: 0 var(--dip, 0px);
+  }
+  20% {
+    translate: -6px calc(var(--dip, 0px) + 4px);
+  }
+  45% {
+    translate: 5px var(--dip, 0px);
+  }
+  70% {
+    translate: -2px var(--dip, 0px);
+  }
+}
+
+/* ---------- Project buttons: chrome capsules; a glossy fill floods in from where the pointer enters ---------- */
+
+@property --r {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+.panel-actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1.4rem;
+}
+
+.act {
+  --x: 50%;
+  --y: 50%;
+  --r: 0px;
+  --fill: var(--peri);
+  --wet: #fff;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  height: 3.1rem;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: var(--chrome-ring);
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition:
+    --r 0.65s var(--ease-out),
+    scale 0.25s var(--ease-out);
+}
+
+/* The wet highlight over everything (the fill floods in underneath it). */
+.act::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  left: 8%;
+  right: 8%;
+  top: 2px;
+  height: 45%;
+  border-radius: 999px;
+  background: var(--gloss);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.act.is-on {
+  --r: 320px;
+}
+
+.act:active {
+  scale: 0.96;
+}
+
+/* Live demo: periwinkle candy; floods to silver. */
+.act--solid {
+  --fill: var(--chrome);
+  --wet: var(--ink-day);
+  background: var(--peri);
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(40, 46, 140, 0.55);
+}
+
+/* Source code: silver; floods to periwinkle. */
+.act--line {
+  background: var(--chrome);
+  color: var(--ink-day);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.act-fill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--fill);
+  clip-path: circle(var(--r) at var(--x) var(--y));
+}
+
+.act-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.65em;
+  white-space: nowrap;
+}
+
+/* The same row again in the "filled" colour, clipped to the fill's circle. */
+.act-wet {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 0 1.4rem;
+  color: var(--wet);
+  text-shadow: none;
+  clip-path: circle(var(--r) at var(--x) var(--y));
+}
+
+.act-text {
+  display: inline-flex;
+}
+
+.act-ch {
+  display: inline-flex;
+  flex-direction: column;
+  height: 1.15em;
+  line-height: 1.15;
+  overflow: hidden;
+}
+
+.act-ch > span {
+  transition: transform 0.6s var(--ease-out);
+  transition-delay: calc(var(--i) * 14ms);
+}
+
+.act.is-on .act-ch > span {
+  transform: translateY(-100%);
+}
+
+/* Arrow leaves top-right, a fresh one arrives from bottom-left. */
+.act-arrow {
+  position: relative;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.act-arrow svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.act-arrow svg + svg {
+  transform: translate(-110%, 110%);
+}
+
+.act.is-on .act-arrow svg:first-child {
+  transform: translate(110%, -110%);
+}
+
+.act.is-on .act-arrow svg + svg {
+  transform: none;
+  transition-delay: 0.06s;
+}
+
+/* Source code: the brackets part and the slash tips over. */
+.act-code {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans), monospace;
+  font-weight: 800;
+  font-size: 1.1em;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.act-code > span {
+  display: inline-block;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.act.is-on .act-code-l {
+  transform: translateX(-0.16em);
+}
+
+.act.is-on .act-code-r {
+  transform: translateX(0.16em);
+}
+
+.act.is-on .act-code-s {
+  transform: rotate(22deg);
+}
+
+.act:focus-visible {
+  outline: 2px solid var(--ink-day);
+  outline-offset: 4px;
+}
+
+/* No live demo: same shape, frosted and dashed. */
+.act--none {
+  color: var(--ink-soft-day);
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: none;
+  outline: 1.5px dashed rgba(19, 38, 90, 0.4);
+  outline-offset: -1.5px;
+  cursor: default;
+}
+
+.act--none::after {
+  display: none;
+}
+
+.act--none:focus-visible {
+  outline: 2px solid var(--ink-day);
+  outline-offset: 4px;
+}
+
+.act-note {
+  max-width: 17rem;
+  margin-left: 0.4rem;
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+.act-note a {
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: rgba(109, 116, 228, 0.6);
+  transition: text-decoration-color 0.3s ease;
+}
+
+.act-note a:hover {
+  text-decoration-color: var(--accent);
 }
 
 /* "And much more" — the last stop of the gallery. */
@@ -645,11 +1824,8 @@ a:hover .roll-inner {
 }
 
 .more-title {
-  font-family: var(--font-display), sans-serif;
-  font-weight: 800;
-  font-size: clamp(3.4rem, 8vw, 9rem);
-  line-height: 0.88;
-  letter-spacing: -0.05em;
+  font-size: clamp(2.8rem, 6.4vw, 7.2rem);
+  line-height: 0.98;
   text-transform: uppercase;
 }
 
@@ -662,14 +1838,15 @@ a:hover .roll-inner {
 .more-icon {
   width: clamp(130px, 22svh, 240px);
   height: clamp(130px, 22svh, 240px);
-  color: var(--ink);
+  color: var(--ink-day);
+  filter: drop-shadow(0 10px 16px rgba(14, 34, 86, 0.3));
   transition: transform 0.8s var(--ease-out);
   will-change: transform;
 }
 
 .more-handle {
-  font-family: var(--font-display), sans-serif;
-  font-weight: 600;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
   font-size: clamp(1.1rem, 1.6vw, 1.6rem);
   color: var(--ink-soft);
   transition: color 0.3s ease;
@@ -683,12 +1860,15 @@ a:hover .roll-inner {
 
 /* ---------- Contact ---------- */
 
+/* The last screen is one composed frame: SAY HI, the links, the bubble garden, and the meadow the whole
+   page comes to rest on. */
 .contact {
   position: relative;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 26svh var(--gutter) 0;
+  padding: 14svh var(--gutter) 0;
   text-align: center;
   overflow: hidden;
 }
@@ -697,57 +1877,68 @@ a:hover .roll-inner {
   display: flex;
   align-items: baseline;
   gap: 0.12em;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 800;
-  font-size: clamp(6rem, 27vw, 30rem);
-  line-height: 0.8;
-  letter-spacing: -0.06em;
+  font-size: clamp(4rem, 15vw, 17rem);
+  line-height: 0.9;
   text-transform: uppercase;
 }
 
+/* The links: a row of chrome capsules. */
 .contact-links {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem clamp(1.6rem, 5vw, 4.5rem);
-  margin-top: 7vh;
+  gap: 1rem clamp(0.9rem, 2vw, 1.6rem);
+  margin-top: 6svh;
 }
 
 .copy-handle {
   appearance: none;
   border: 0;
-  background: none;
-  color: inherit;
   cursor: pointer;
 }
 
 .contact-links a,
 .contact-links .copy-handle {
-  display: inline-block;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 600;
-  font-size: clamp(1.4rem, 2.6vw, 2.4rem);
-  letter-spacing: -0.02em;
-  padding: 0.3em 0.2em;
+  height: 3.6rem;
+  padding: 0 1.9rem;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+  letter-spacing: -0.01em;
 }
 
-/* Open floor below the links for the cat and the flowers. */
+/* Open air below the links for the cat, the wand and the flowers. */
 .garden {
   width: 100%;
-  height: clamp(380px, 62svh, 680px);
+  flex: 1 1 auto;
+  min-height: max(24svh, 190px);
+}
+
+/* The bottom of the page: the footer sits on the grass. */
+.ground {
+  position: relative;
+  width: 100vw;
+  height: clamp(150px, 21svh, 230px);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 var(--gutter) 22px;
 }
 
 .footer {
-  position: absolute;
-  bottom: 22px;
-  inset-inline: var(--gutter);
+  position: relative;
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 1rem;
-  font-size: 0.8rem;
-  color: var(--ink-faint);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0f2d18;
+}
+
+.footer > :first-child {
+  text-align: left;
 }
 
 .footer > :last-child {
@@ -760,8 +1951,8 @@ a:hover .roll-inner {
 }
 
 .playground-hint {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
+  font-size: 0.86rem;
+  font-weight: 700;
   text-align: center;
   min-height: 1.3em;
 }
@@ -791,64 +1982,53 @@ html:has(.nf) body {
   top: 24px;
   left: var(--gutter);
   font-family: var(--font-display), sans-serif;
-  font-weight: 800;
+  font-weight: 400;
   font-size: 1.35rem;
   letter-spacing: -0.03em;
 }
 
 .nf-code {
-  font-family: var(--font-display), sans-serif;
-  font-weight: 800;
-  font-size: clamp(7rem, 30vw, 22rem);
-  line-height: 0.8;
-  letter-spacing: -0.06em;
+  font-size: clamp(6rem, 24vw, 17rem);
+  line-height: 0.9;
 }
 
 .nf-title {
   margin-top: 6svh;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 700;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 800;
   font-size: clamp(1.6rem, 3vw, 2.4rem);
   letter-spacing: -0.02em;
 }
 
 .nf-sub {
   margin-top: 0.7rem;
-  font-size: 1rem;
+  font-size: 1.05rem;
+  font-weight: 500;
   line-height: 1.6;
   color: var(--ink-soft);
 }
 
-/* A solid button: filled, softly rounded corners, lifts on hover and presses in on click. */
+/* A chrome capsule: lifts on hover and presses in on click. */
 .nf-home {
-  display: inline-flex;
-  align-items: center;
   margin-top: 5svh;
-  padding: 1.05em 1.9em;
-  border-radius: 14px;
-  background: var(--ink);
-  color: var(--bg);
-  font-family: var(--font-display), sans-serif;
-  font-weight: 700;
+  height: 3.4rem;
+  padding: 0 2rem;
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 800;
   font-size: 1.05rem;
   letter-spacing: -0.01em;
-  transition:
-    transform 0.4s var(--ease-out),
-    background-color 0.3s ease;
 }
 
 .nf-home:hover {
   transform: translateY(-3px);
-  background: #fff;
 }
 
 .nf-home:active {
   transform: translateY(0) scale(0.97);
-  transition-duration: 0.1s;
 }
 
 .nf-home:focus-visible {
-  outline: 2px solid var(--ink);
+  outline: 2px solid var(--ink-day);
   outline-offset: 4px;
 }
 
@@ -856,12 +2036,65 @@ html:has(.nf) body {
 
 @media (max-width: 899px) {
   .nav-links {
-    gap: 16px;
-    font-size: 0.88rem;
+    gap: 6px;
+    font-size: 0.64rem;
+  }
+
+  .nav-links a {
+    height: 2.1rem;
+    padding: 0 0.75rem;
   }
 
   .hero {
     height: 160svh;
+  }
+
+  .about-intro {
+    padding: 12svh var(--gutter) 26svh;
+  }
+
+  .about .statement {
+    font-size: 10vw;
+  }
+
+  .about-kicker {
+    margin-top: 5svh;
+    font-size: 0.72rem;
+  }
+
+  .ab-meta {
+    top: 11svh;
+  }
+
+  .ab-name {
+    height: 1.7rem;
+    padding: 0 0.7rem;
+    font-size: 0.62rem;
+    line-height: 1.7rem;
+  }
+
+  .ab-count {
+    font-size: 1.6rem;
+  }
+
+  .ab-list {
+    right: var(--gutter);
+    width: auto;
+    bottom: 6svh;
+  }
+
+  .ab-title {
+    font-size: 9.6vw;
+  }
+
+  .ab-line {
+    margin-top: 1rem;
+    font-size: 0.98rem;
+  }
+
+  .ab-proof {
+    margin-top: 0.9rem;
+    font-size: 0.88rem;
   }
 
   .work {
@@ -887,19 +2120,19 @@ html:has(.nf) body {
   }
 
   .work-heading {
-    font-size: clamp(3rem, 16vw, 6rem);
+    font-size: clamp(2.6rem, 12.5vw, 5rem);
   }
 
   .sayhi {
-    font-size: 21vw;
-  }
-
-  .more-title {
     font-size: 15vw;
   }
 
+  .more-title {
+    font-size: 11vw;
+  }
+
   .panel-title {
-    font-size: clamp(2.2rem, 10vw, 3.6rem);
+    font-size: clamp(1.7rem, 7.6vw, 3rem);
   }
 
   .panel-media {
@@ -908,13 +2141,39 @@ html:has(.nf) body {
 
   .panel-info {
     grid-template-columns: 1fr;
-    grid-template-areas: "index" "title" "desc";
+    grid-template-areas: "index" "title" "desc" "meta" "actions";
     margin-top: 1rem;
   }
 
-  .panel-desc,
-  .panel-meta {
-    grid-column: 1;
+  .panel-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin-top: 1.1rem;
+  }
+
+  .act {
+    justify-content: center;
+    padding: 0 0.8rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+  }
+
+  .act-wet {
+    justify-content: center;
+    padding: 0 0.8rem;
+  }
+
+  .act-note {
+    grid-column: 1 / -1;
+    max-width: none;
+    margin-left: 0;
+  }
+
+  .contact-links a,
+  .contact-links .copy-handle {
+    height: 3rem;
+    padding: 0 1.3rem;
   }
 
   .footer {
@@ -923,6 +2182,7 @@ html:has(.nf) body {
     gap: 0.3rem;
   }
 
+  .footer > :first-child,
   .footer > :last-child {
     text-align: center;
   }

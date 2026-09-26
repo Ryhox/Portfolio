@@ -5,12 +5,13 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useProgress } from "@react-three/drei";
 import * as THREE from "three";
 import Backdrop from "./Backdrop";
+import IntroFX from "./IntroFX";
 import HeroTitle from "./HeroTitle";
 import Bubbles from "./Bubbles";
 import Charms from "./Charms";
 import HoloEnvironment from "./HoloEnvironment";
 import TickerDrive from "./TickerDrive";
-import IntroFX from "./IntroFX";
+import AboutSky from "./AboutSky";
 import { introFx } from "@/lib/introFx";
 import { world } from "./world";
 import { holoUniforms } from "./materials";
@@ -61,9 +62,9 @@ function Rig() {
 function Lights() {
   return (
     <>
-      <hemisphereLight args={["#fbf6ff", "#f3d3ea", 1.25]} />
+      <hemisphereLight args={["#f6fbff", "#cfe1f6", 1.25]} />
       <directionalLight position={[3, 6, 5]} intensity={1.3} color="#fff7fb" />
-      <directionalLight position={[-5, 2, -4]} intensity={0.9} color="#c9dcff" />
+      <directionalLight position={[-5, 2, -4]} intensity={0.9} color="#bcdcff" />
       <HoloEnvironment resolution={256} />
     </>
   );
@@ -127,6 +128,7 @@ export default function Scene({
       <Progress onProgress={onProgress} />
       <Rig />
       <Backdrop />
+      <AboutSky />
       <Lights />
       <Suspense fallback={null}>
         <HeroTitle />

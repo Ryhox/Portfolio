@@ -4,10 +4,13 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { publishStats, stage } from "@/lib/stage";
+import { scroll } from "@/lib/scroll";
 import { createFilmMaterial } from "../three/materials";
 import { toWorld, unitsPerPx, view } from "./view";
 
-// Soap bubbles blown from the wand. Physics runs in screen px; rendered as one instanced mesh.
+// Soap bubbles blown from the wand. Physics runs in screen px, shifted with the scroll so they stay put on
+// the page while you look around the garden; they all pop once you scroll back up and out of it.
+// Rendered as one instanced mesh.
 
 const MAX = 90;
 
@@ -35,12 +38,20 @@ export default function WandBubbles() {
   const bubbles = useRef<Bubble[]>([]);
   const nextId = useRef(1);
   const lastCatch = useRef(0);
+  const lastY = useRef(scroll.y);
+  const wasGarden = useRef(false);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame((state, rawDt) => {
     const dt = Math.min(rawDt, 1 / 30);
     const list = bubbles.current;
     const small = view.vw < 700 ? 0.75 : 1;
+    // The page moved: so do the bubbles on it.
+    const dy = scroll.y - lastY.current;
+    lastY.current = scroll.y;
+    // Leaving the garden: every bubble still around pops, in a quick ripple.
+    if (wasGarden.current && !stage.garden) for (const b of list) b.life = Math.min(b.life, b.age + Math.random() * 0.35);
+    wasGarden.current = stage.garden;
 
     while (stage.emits.length) {
       const e = stage.emits.shift()!;
@@ -77,9 +88,9 @@ export default function WandBubbles() {
       b.vx *= Math.exp(-0.9 * dt);
       b.vy *= Math.exp(-0.7 * dt);
       b.x += b.vx * dt;
-      b.y += b.vy * dt;
+      b.y += b.vy * dt - dy;
 
-      if (stage.playground && b.y + b.r > stage.floorY) {
+      if (stage.garden && b.y + b.r > stage.floorY) {
         if (b.sink) {
           pop(b, true);
           stage.plants.push(b.x);
@@ -104,7 +115,9 @@ export default function WandBubbles() {
         }
       }
 
-      const off = b.y < -b.r * 2 || b.x < -150 || b.x > view.vw + 150 || b.y > view.vh + 200;
+      // Only floating away over the top (or out sideways) loses a bubble; below the screen it just waits
+      // for you to scroll back down to it.
+      const off = b.y < -b.r * 2 - 40 || b.x < -150 || b.x > view.vw + 150 || (!stage.garden && b.y > view.vh + 200);
       if (off) b.alive = false;
       else if (b.age > b.life) pop(b, true);
     }

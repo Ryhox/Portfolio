@@ -19,7 +19,7 @@ export default function NotFound() {
       </h1>
       <p className="nf-title">This page popped.</p>
       <p className="nf-sub">Like a soap bubble, it was here a second ago.</p>
-      <Link href="/" className="nf-home">
+      <Link href="/" className="nf-home chrome-pill">
         <RollText text="Back to the start" />
       </Link>
     </main>

@@ -18,7 +18,7 @@ export default function CopyHandle({ label, handle }: { label: string; handle: s
   };
 
   return (
-    <button type="button" className="copy-handle" onClick={copy} data-magnetic aria-label={`${label}: ${handle} (copy to clipboard)`}>
+    <button type="button" className="copy-handle chrome-pill" onClick={copy} data-magnetic aria-label={`${label}: ${handle} (copy to clipboard)`}>
       <RollText text={copied ? `@${handle} copied ✧` : label} />
     </button>
   );

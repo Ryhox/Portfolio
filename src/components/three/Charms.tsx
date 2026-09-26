@@ -16,9 +16,6 @@ type Charm = { kind: Kind; sec: string; v: number; x: number; z: number; s: numb
 const CHARMS: Charm[] = [
   { kind: "moon", sec: "hero", v: 0.26, x: -0.8, z: -1.5, s: 0.42, tilt: 0.4 },
   { kind: "butterfly", sec: "hero", v: 0.62, x: 0.84, z: -0.6, s: 0.36, tilt: -0.3 },
-  { kind: "butterfly", sec: "intro", v: 0.22, x: 0.74, z: -1.2, s: 0.4, tilt: 0.25 },
-  { kind: "sparkle", sec: "intro", v: 0.36, x: 0.9, z: 0.2, s: 0.18, tilt: 0 },
-  { kind: "star", sec: "intro", v: 0.9, x: -0.84, z: -2.2, s: 0.34, tilt: -0.2 },
   { kind: "sparkle", sec: "work", gap: 0, v: 0.22, x: 0, z: 0.4, s: 0.2, tilt: 0 },
   { kind: "orbit", sec: "work", gap: 1, v: 0.42, x: 0, z: 1.2, s: 0.34, tilt: 0.2 },
   { kind: "moon", sec: "work", gap: 2, v: 0.62, x: 0, z: 1.0, s: 0.36, tilt: -0.4 },

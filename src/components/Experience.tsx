@@ -6,6 +6,8 @@ import { gsap } from "gsap";
 import SmoothScroll, { lenis } from "./SmoothScroll";
 import Motion from "./Motion";
 import Wand from "./Wand";
+import ActionFx from "./ActionFx";
+import TerrainDebug from "./stage/TerrainDebug";
 import { intro } from "@/lib/intro";
 import { introFx } from "@/lib/introFx";
 
@@ -86,26 +88,17 @@ export default function Experience({ children }: { children: ReactNode }) {
     return () => gsap.ticker.remove(tick);
   }, [render]);
 
-  // Everything compiled: count to 100, burst the digits, and hand over to the WebGL bubble.
+  // Everything compiled: count to 100, let the number fade away, then hand over to the WebGL bubbles that
+  // pop through the sky curtain (IntroFX).
   useEffect(() => {
     if (!motionSetup) return;
     const p = progress.current;
     p.finishing = true;
 
-    // Every glyph of "100%" becomes a bubble; measure them before they pop.
-    const glyphs = [...digits.current, document.querySelector<HTMLElement>(".loader-pct")].filter(
-      (el): el is HTMLElement => !!el && el.style.display !== "none",
-    );
-    const seeds = () =>
-      glyphs.map((el) => {
-        const r = el.getBoundingClientRect();
-        return { x: r.left + r.width / 2, y: r.top + r.height / 2, r: Math.min(r.width, r.height) * 0.42 };
-      });
-
     const start = () => {
       introFx.onCover = () => {
-        // The WebGL curtain matches the loader pixel for pixel: drop the DOM background, keep the fading glyphs.
-        if (loader.current) loader.current.style.background = "transparent";
+        // The WebGL curtain matches the loader pixel for pixel: the DOM loader can go.
+        if (loader.current) loader.current.style.display = "none";
       };
       introFx.onPop = () => {
         intro.at = performance.now() / 1000;
@@ -115,20 +108,16 @@ export default function Experience({ children }: { children: ReactNode }) {
         lenis?.start();
       };
       introFx.onDone = null;
+      // No bubbles grow out of the digits any more: they have faded.
+      introFx.seeds = [];
       introFx.t0 = performance.now() / 1000;
     };
 
     const tl = gsap.timeline();
     tl.to(p, { v: 100, duration: 0.35, ease: "power2.out", onUpdate: render })
-      .add(() => {
-        introFx.seeds = seeds();
-        start();
-      }, "+=0.08")
-      // Each glyph melts into the bubble inflating inside it.
-      .to(glyphs, { scale: 1.12, autoAlpha: 0, duration: 0.26, stagger: 0.04, ease: "power2.out" }, "+=0.02")
-      .add(() => {
-        if (loader.current) loader.current.style.display = "none";
-      });
+      // "100%" fades as one piece.
+      .to(".loader-count", { y: -24, autoAlpha: 0, filter: "blur(6px)", duration: 0.5, ease: "power2.in" }, "+=0.15")
+      .add(start, "-=0.1");
     return () => {
       tl.kill();
     };
@@ -139,6 +128,8 @@ export default function Experience({ children }: { children: ReactNode }) {
       <SmoothScroll />
       <Motion ready={sceneReady && stageReady} onReady={onMotionReady} />
       <Wand />
+      <ActionFx ready={motionSetup} />
+      <TerrainDebug />
       <div className="scene" aria-hidden>
         <Scene eventSource={root} onReady={onSceneReady} onProgress={onProgress} />
       </div>

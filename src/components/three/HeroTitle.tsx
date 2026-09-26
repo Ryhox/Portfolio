@@ -1,57 +1,32 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { createCharmMaterial } from "./materials";
+import { createLetterMaterial } from "./materials";
+import { buildGlyph } from "./letters";
 import { world } from "./world";
 import { scroll } from "@/lib/scroll";
 import { intro } from "@/lib/intro";
 import { stage } from "@/lib/stage";
 
 const WORD = "ryhox";
-// Baked by scripts/build-letters.ts from ./liquidLetters.ts.
-const LETTERS_URL = "/models/letters.glb";
-
-// The GLB is quantized (int16 positions + a dequantizing node transform), so rebuild a plain
-// float geometry with that transform applied.
-function bakedGeometry(root: THREE.Object3D, name: string) {
-  const mesh = root.getObjectByName(name) as THREE.Mesh;
-  root.updateMatrixWorld(true);
-  const src = mesh.geometry;
-  const pos = src.getAttribute("position");
-  const nor = src.getAttribute("normal");
-  const P = new Float32Array(pos.count * 3);
-  const N = new Float32Array(pos.count * 3);
-  for (let i = 0; i < pos.count; i++) {
-    P.set([pos.getX(i), pos.getY(i), pos.getZ(i)], i * 3);
-    N.set([nor.getX(i), nor.getY(i), nor.getZ(i)], i * 3);
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.BufferAttribute(P, 3));
-  geo.setAttribute("normal", new THREE.BufferAttribute(N, 3));
-  if (src.index) geo.setIndex(Array.from(src.index.array));
-  geo.applyMatrix4(mesh.matrixWorld);
-  geo.computeBoundingBox();
-  return geo;
-}
-
 type Letter = { geo: THREE.BufferGeometry; x: number; w: number; top: number };
 
 // The cat perches on top of this letter ("o").
 const PERCH_LETTER = 3;
 
 export default function HeroTitle() {
-  const material = useMemo(() => createCharmMaterial(), []);
-  const gltf = useGLTF(LETTERS_URL);
+  const material = useMemo(() => createLetterMaterial(), []);
+  useEffect(() => () => material.dispose(), [material]);
 
   const { letters, width } = useMemo(() => {
     const out: Letter[] = [];
     let cursor = 0;
     const gap = 0.06;
     for (const ch of WORD) {
-      const geo = bakedGeometry(gltf.scene, ch);
+      // Flat puffy stickers, built like the charms (see letters.ts).
+      const geo = buildGlyph(ch);
       const bb = geo.boundingBox!;
       const w = bb.max.x - bb.min.x;
       // Glyph origin sits mid x-height so each letter wobbles around its own middle.
@@ -63,7 +38,7 @@ export default function HeroTitle() {
     const total = cursor - gap;
     out.forEach((l) => (l.x -= total / 2));
     return { letters: out, width: total };
-  }, [gltf]);
+  }, []);
 
   const root = useRef<THREE.Group>(null);
   const word = useRef<THREE.Group>(null);
@@ -86,8 +61,8 @@ export default function HeroTitle() {
     const d = Math.min(dt, 1 / 30);
     if (!root.current || !word.current) return;
 
-    // Wide screens: half the width. Phones: nearly edge to edge.
-    const share = world.W < 3 ? 0.84 : 0.5;
+    // Wide screens: half the width. Phones: most of it, leaving room for the ring (1.2× the word).
+    const share = world.W < 3 ? 0.72 : 0.5;
     const fit = Math.min((world.W * 2 * share) / width, (world.H * 2 * 0.36) / 2.4, 1.2);
     word.current.scale.setScalar(fit);
 
@@ -95,7 +70,8 @@ export default function HeroTitle() {
     const range = scroll.vh * 0.5;
     const e = THREE.MathUtils.clamp(scroll.y / range, 0, 1);
     const ee = e * e * (3 - 2 * e);
-    root.current.position.y = world.H * 0.12 + Math.max(0, scroll.y - range) * world.pxToWorld;
+    // Centred on the screen (a hair high: the nav takes the top, the scroll cue the bottom).
+    root.current.position.y = world.H * 0.03 + Math.max(0, scroll.y - range) * world.pxToWorld;
     root.current.visible = e < 0.999;
 
     // Intro: letters drop in with a bounce once the preloader lifts.
@@ -103,8 +79,9 @@ export default function HeroTitle() {
 
     const px = state.pointer.x;
     const py = state.pointer.y;
-    word.current.rotation.y = THREE.MathUtils.damp(word.current.rotation.y, px * 0.22 * (1 - ee), 3, d);
-    word.current.rotation.x = THREE.MathUtils.damp(word.current.rotation.x, -py * 0.14 * (1 - ee), 3, d);
+    // A slow sway on top of the pointer tilt, so the reflections keep sliding over the chrome.
+    word.current.rotation.y = THREE.MathUtils.damp(word.current.rotation.y, (px * 0.22 + Math.sin(t * 0.45) * 0.2) * (1 - ee), 3, d);
+    word.current.rotation.x = THREE.MathUtils.damp(word.current.rotation.x, (-py * 0.14 + Math.sin(t * 0.31) * 0.07) * (1 - ee), 3, d);
 
     // Pointer on the word plane, in word-local units.
     state.raycaster.setFromCamera(state.pointer, state.camera);
@@ -229,4 +206,3 @@ function easeOutBack(x: number) {
   return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
 }
 
-useGLTF.preload(LETTERS_URL);

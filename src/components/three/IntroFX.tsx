@@ -6,10 +6,10 @@ import * as THREE from "three";
 import { introFx } from "@/lib/introFx";
 import { createBubbleMaterial, createHolo } from "./materials";
 
-// Loader → landing, in the main scene (~2s). The glyphs of "100%" inflate into real glass bubbles
-// (same material as the bubbles on the page); more bubbles fizz up from the bottom edge like in a
-// soda. Everything rises, sways and swells — then they all pop at almost the same moment, tearing
-// liquid, iridescent holes into the dark curtain that merge and reveal the page.
+// Loader → landing, in the main scene (~2s). Once "100%" has faded, real glass bubbles (same material
+// as the bubbles on the page) fizz up from the bottom edge like in a soda. Everything rises, sways and
+// swells — then they all pop at almost the same moment, tearing liquid, iridescent holes into the sky
+// curtain (the loader's own sky) that merge and reveal the page.
 
 const INFLATE = 0.35;
 const POP = 1.0; // when the pops start
@@ -20,10 +20,10 @@ const HOLE_TIME = 0.9;
 // x/y: where they are when they pop (fractions of the viewport); r: size then (fraction of min(vw, vh)).
 type Plan = { glyph: number; x: number; y: number; r: number; start: number };
 const PLAN: Plan[] = [
-  { glyph: 0, x: 0.2, y: 0.46, r: 0.1, start: 0.12 },
-  { glyph: 1, x: 0.4, y: 0.3, r: 0.14, start: 0.16 },
-  { glyph: 2, x: 0.58, y: 0.52, r: 0.16, start: 0.2 },
-  { glyph: 3, x: 0.76, y: 0.34, r: 0.1, start: 0.24 },
+  { glyph: -1, x: 0.2, y: 0.46, r: 0.1, start: 0.06 },
+  { glyph: -1, x: 0.4, y: 0.3, r: 0.14, start: 0.1 },
+  { glyph: -1, x: 0.58, y: 0.52, r: 0.16, start: 0.04 },
+  { glyph: -1, x: 0.76, y: 0.34, r: 0.1, start: 0.12 },
   { glyph: -1, x: 0.08, y: 0.72, r: 0.07, start: 0.0 },
   { glyph: -1, x: 0.3, y: 0.78, r: 0.085, start: 0.05 },
   { glyph: -1, x: 0.5, y: 0.86, r: 0.06, start: 0.1 },
@@ -48,7 +48,9 @@ const uniforms = {
   uTime: { value: 0 },
   uDpr: { value: 1 },
   uViewH: { value: 1 },
-  uBg: { value: new THREE.Vector3(11 / 255, 9 / 255, 22 / 255) },
+  uSkyTop: { value: new THREE.Vector3(47 / 255, 127 / 255, 226 / 255) },
+  uSkyMid: { value: new THREE.Vector3(94 / 255, 168 / 255, 239 / 255) },
+  uSkyLow: { value: new THREE.Vector3(164 / 255, 210 / 255, 247 / 255) },
 };
 
 const vertex = /* glsl */ `
@@ -83,15 +85,19 @@ const field = /* glsl */ `
   }
 `;
 
-// Opaque curtain: identical color to the DOM loader, holes cut out.
+// Opaque curtain: the same sky as the DOM loader, holes cut out.
 const curtainFragment = /* glsl */ `
   uniform float uActive;
-  uniform vec3 uBg;
+  uniform vec3 uSkyTop;
+  uniform vec3 uSkyMid;
+  uniform vec3 uSkyLow;
   ${field}
   void main() {
     if (uActive < 0.5) discard;
     if (holes(cssPos()) < 0.0) discard;
-    gl_FragColor = vec4(uBg, 1.0);
+    float f = clamp(cssPos().y / uViewH, 0.0, 1.0);
+    vec3 sky = f < 0.55 ? mix(uSkyTop, uSkyMid, f / 0.55) : mix(uSkyMid, uSkyLow, (f - 0.55) / 0.45);
+    gl_FragColor = vec4(sky, 1.0);
   }
 `;
 
@@ -107,9 +113,9 @@ const rimFragment = /* glsl */ `
     float h = holes(p);
     float band = exp(-pow(h / 14.0, 2.0)) * uRim * 0.85;
     float hue = 0.5 + 0.5 * sin(atan(p.y - uViewH * 0.5, p.x) * 3.0 + uTime * 2.5 + h * 0.03);
-    vec3 pink = vec3(1.0, 0.72, 0.9);
-    vec3 lilac = vec3(0.78, 0.68, 1.0);
-    vec3 blue = vec3(0.64, 0.82, 1.0);
+    vec3 pink = vec3(1.0, 0.8, 0.94);
+    vec3 lilac = vec3(0.9, 0.92, 1.0);
+    vec3 blue = vec3(0.72, 0.9, 1.0);
     vec3 holo = hue < 0.5 ? mix(pink, lilac, hue * 2.0) : mix(lilac, blue, hue * 2.0 - 1.0);
     float glow = uFlash * uFlash * smoothstep(0.0, -220.0, h) * 0.28;
     gl_FragColor = vec4(holo * band + vec3(1.0, 0.94, 1.0) * glow, 1.0);
@@ -143,7 +149,7 @@ export default function IntroFX() {
         blending: THREE.AdditiveBlending,
       }),
       bubble: createBubbleMaterial(),
-      drop: createHolo({ color: "#ffd2ee", rim: 0.9, envMapIntensity: 1.6 }),
+      drop: createHolo({ color: "#eef6ff", rim: 0.9, envMapIntensity: 1.6 }),
     }),
     [],
   );

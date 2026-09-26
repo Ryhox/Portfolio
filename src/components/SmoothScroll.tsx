@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { measureSections, scroll } from "@/lib/scroll";
+import { afterScroll, measureSections, scroll } from "@/lib/scroll";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,7 +32,10 @@ export default function SmoothScroll() {
     });
 
     // One clock for Lenis + GSAP so pinned/scrubbed animations never drift from the scroll.
-    const tick = (time: number) => instance.raf(time * 1000);
+    const tick = (time: number, deltaMs: number) => {
+      instance.raf(time * 1000);
+      afterScroll.forEach((fn) => fn(time, deltaMs));
+    };
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 

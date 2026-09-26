@@ -10,9 +10,11 @@ import { intro } from "@/lib/intro";
 import CatActor from "./CatActor";
 import WandBubbles from "./WandBubbles";
 import Garden from "./Garden";
+import Grass from "./Grass";
+import Wand3D from "./Wand3D";
 import Bursts from "./Bursts";
 import { flowerGeometries, flowerMaterials } from "./flowers";
-import { CAT_ASPECT, FOV, PX, TILT, catHeight, view } from "./view";
+import { FOV, PX, TILT, view } from "./view";
 import { bindPlatforms, live, measurePlatforms } from "./platforms";
 
 const COARSE = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
@@ -44,7 +46,7 @@ function StageRig() {
     camera.position.set(0, d * Math.sin(TILT), d * Math.cos(TILT));
     camera.lookAt(0, 0, 0);
     camera.updateMatrixWorld();
-    live.list = measurePlatforms(size.width, size.height, catHeight(size.width) * CAT_ASPECT, Math.min(dt, 1 / 20));
+    live.list = measurePlatforms(size.width, size.height, Math.min(dt, 1 / 20));
   }, -2);
 
   return null;
@@ -100,8 +102,8 @@ export default function StageCanvas({
     >
       <TickerDrive active={() => Number.isFinite(intro.at)} />
       <StageRig />
-      <hemisphereLight args={["#fff6ff", "#e6d4f2", 1.6]} />
-      <directionalLight position={[3, 6, 8]} intensity={1.5} color="#fff5fb" />
+      <hemisphereLight args={["#f8fcff", "#b9cbe6", 1.1]} />
+      <directionalLight position={[3, 6, 8]} intensity={1.2} color="#fff8ee" />
       <directionalLight position={[-6, 1, 3]} intensity={0.7} color="#c9d8ff" />
       <HoloEnvironment resolution={256} />
       <Suspense fallback={null}>
@@ -109,6 +111,8 @@ export default function StageCanvas({
         <StageReady onReady={onReady} />
       </Suspense>
       <WandBubbles />
+      <Grass />
+      <Wand3D />
       <Garden />
       <Bursts />
       <Prewarm />

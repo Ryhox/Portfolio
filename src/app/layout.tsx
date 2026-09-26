@@ -1,11 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Fredoka, Manrope } from "next/font/google";
+import { Bungee, Fredoka, Manrope, Orbitron } from "next/font/google";
 import { preload } from "react-dom";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 
-const display = Bricolage_Grotesque({
+// Y2K type: blocky Bungee for the big chrome headlines, Orbitron for buttons and labels.
+const display = Bungee({
   variable: "--font-display",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const ui = Orbitron({
+  variable: "--font-ui",
   subsets: ["latin"],
 });
 
@@ -74,18 +81,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f0b1e",
-  colorScheme: "dark",
+  themeColor: "#3d84e8",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  // Start fetching the 3D models with the HTML instead of after the JS has booted.
-  preload("/models/letters.glb", { as: "fetch", crossOrigin: "anonymous" });
+  // Start fetching the 3D model with the HTML instead of after the JS has booted.
   preload("/models/cat.glb", { as: "fetch", crossOrigin: "anonymous" });
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable} ${bubble.variable}`}>
+    <html lang="en" className={`${sans.variable} ${display.variable} ${ui.variable} ${bubble.variable}`}>
       <body>{children}</body>
     </html>
   );

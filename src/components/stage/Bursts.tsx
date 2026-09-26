@@ -33,7 +33,7 @@ export default function Bursts() {
     () =>
       Array.from({ length: POOL }, () => ({
         ring: new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, depthWrite: false }),
-        drop: new THREE.MeshBasicMaterial({ color: "#fbe8ff", transparent: true, depthWrite: false }),
+        drop: new THREE.MeshBasicMaterial({ color: "#f1f8ff", transparent: true, depthWrite: false }),
       })),
     [],
   );

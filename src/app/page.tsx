@@ -2,7 +2,9 @@ import Experience from "@/components/Experience";
 import RollText from "@/components/RollText";
 import PlaygroundHint from "@/components/PlaygroundHint";
 import CopyHandle from "@/components/CopyHandle";
-import { github, marquee, profile, projects, socials } from "@/content";
+import ProjectActions, { MediaFx } from "@/components/ProjectActions";
+import { abilities, github, marquee, profile, projects, socials, tech } from "@/content";
+import { FIGURES } from "@/components/three/constellations";
 
 // Each word is its own element so it can light up as you scroll. "==words==" get a highlighter stroke.
 function Statement({ text }: { text: string }) {
@@ -45,24 +47,60 @@ function Chars({ text, className }: { text: string; className?: string }) {
   );
 }
 
-function MarqueeRow({ reverse }: { reverse?: boolean }) {
+// What I do, as a Y2K music player: chrome buttons, and the words running across its little LCD screen
+// like a track title (speed and direction follow the scroll). It really plays: pause it, or skip a word
+// back / forward (see Motion.tsx).
+function Ticker() {
   const items = [...marquee, ...marquee];
   return (
-    <div className={reverse ? "marquee-row is-reverse" : "marquee-row"} aria-hidden>
-      <div className="marquee-inner">
-        {[0, 1].map((copy) => (
-          <span className="marquee-chunk" key={copy}>
-            {items.map((m, i) => (
-              <span key={i} className="marquee-word">
-                {m}
-                <svg className="marquee-star" viewBox="0 0 20 20" aria-hidden>
-                  <path d="M10 0 Q11.6 8.4 20 10 Q11.6 11.6 10 20 Q8.4 11.6 0 10 Q8.4 8.4 10 0Z" />
-                </svg>
+    <div className="ticker">
+      <span className="tk-controls">
+        <button type="button" className="tk-btn" data-tk="prev" aria-label="Back one word">
+          <svg viewBox="0 0 24 24" aria-hidden>
+            <path d="M6 5h2v14H6zM20 5v14l-10-7z" />
+          </svg>
+        </button>
+        <button type="button" className="tk-btn is-play" data-tk="play" aria-label="Pause the ticker">
+          <svg className="tk-pause" viewBox="0 0 24 24" aria-hidden>
+            <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />
+          </svg>
+          <svg className="tk-play" viewBox="0 0 24 24" aria-hidden>
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+        <button type="button" className="tk-btn" data-tk="next" aria-label="Forward one word">
+          <svg viewBox="0 0 24 24" aria-hidden>
+            <path d="M16 5h2v14h-2zM4 5v14l10-7z" />
+          </svg>
+        </button>
+      </span>
+      <span className="tk-lcd" aria-hidden>
+        <span className="tk-label">
+          <span className="tk-on">Now playing</span>
+          <span className="tk-off">Paused</span>
+        </span>
+        <span className="ticker-window">
+          <span className="ticker-inner">
+            {[0, 1].map((copy) => (
+              <span className="ticker-chunk" key={copy}>
+                {items.map((m, i) => (
+                  <span key={i} className="ticker-word">
+                    {m}
+                    <svg viewBox="0 0 20 20">
+                      <path d="M10 0 Q11.6 8.4 20 10 Q11.6 11.6 10 20 Q8.4 11.6 0 10 Q8.4 8.4 10 0Z" />
+                    </svg>
+                  </span>
+                ))}
               </span>
             ))}
           </span>
+        </span>
+      </span>
+      <span className="tk-eq" aria-hidden>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <i key={i} style={{ "--i": i } as React.CSSProperties} />
         ))}
-      </div>
+      </span>
     </div>
   );
 }
@@ -86,7 +124,7 @@ const jsonLd = {
       url: "https://ryhox.dev",
       jobTitle: profile.role,
       sameAs: [github.href],
-      knowsAbout: ["Three.js", "WebGL", "React Three Fiber", "Next.js", "TypeScript", "Creative coding", "Minecraft modding"],
+      knowsAbout: ["Three.js", "WebGL", "React Three Fiber", "GLSL", "Next.js", "React", "TypeScript", "JavaScript", "Node.js", "PostgreSQL", "MySQL", "Flutter", "Dart", "Java", "Kotlin", "C#", "Arduino", "GSAP", "Creative coding", "Minecraft modding"],
     },
     {
       "@type": "ItemList",
@@ -98,7 +136,8 @@ const jsonLd = {
           "@type": "SoftwareSourceCode",
           name: p.title,
           description: p.description,
-          codeRepository: p.href,
+          codeRepository: p.links.source,
+          ...(p.links.demo ? { url: p.links.demo } : {}),
           keywords: p.stack,
           author: { "@id": "https://ryhox.dev/#person" },
           image: `https://ryhox.dev${p.poster}`,
@@ -121,13 +160,13 @@ export default function Home() {
           <RollText text={profile.handle} />
         </a>
         <nav className="nav-links">
-          <a href="#about">
+          <a href="#about" className="glass-pill">
             <RollText text="About" />
           </a>
-          <a href="#work">
+          <a href="#work" className="glass-pill">
             <RollText text="Work" />
           </a>
-          <a href="#contact">
+          <a href="#contact" className="glass-pill">
             <RollText text="Contact" />
           </a>
         </nav>
@@ -151,15 +190,123 @@ export default function Home() {
           </h1>
         </section>
 
-        <section id="about" className="intro" data-section="intro">
-          <Statement text={profile.statement} />
-          <p className="intro-note">{profile.note}</p>
+        {/* About: the statement, then night falls on a pinned sky where each ability is a constellation
+            of its tools (WebGL, see AboutSky), and day comes back after. */}
+        <section id="about" className="about" data-section="intro" aria-labelledby="about-title">
+          <h2 id="about-title" className="sr-only">
+            About
+          </h2>
+          <div className="about-intro">
+            <Statement text={profile.statement} />
+            <p className="about-kicker">
+              <span>(About)</span>
+              <span>{profile.note}</span>
+            </p>
+          </div>
+          <Ticker />
+
+          <div className="about-stage">
+            <div className="ab-meta" aria-hidden>
+              <span className="ab-name">
+                <span className="ab-name-strip">
+                  {abilities.map((a) => (
+                    <span key={a.id}>{a.figure}</span>
+                  ))}
+                </span>
+              </span>
+              <span className="ab-count">
+                <span className="ab-count-strip">
+                  {abilities.map((a, i) => (
+                    <span key={a.id}>{String(i + 1).padStart(2, "0")}</span>
+                  ))}
+                </span>
+              </span>
+              <span className="ab-of">/ {String(abilities.length).padStart(2, "0")}</span>
+            </div>
+            <ol className="ab-list">
+              {abilities.map((a) => (
+                <li key={a.id} className="ability">
+                  <h3 className="ab-title">
+                    <Chars text={a.title} />
+                  </h3>
+                  <p className="ab-line">{a.line}</p>
+                  {/* The tools are drawn as the constellation's stars; this list is for screen readers. */}
+                  <ul className="sr-only" aria-label={`${a.title}: tools`}>
+                    {a.tools.map((t) => (
+                      <li key={t}>{t}</li>
+                    ))}
+                  </ul>
+                  <p className="ab-proof">
+                    <span>Seen in</span>
+                    {a.proof.map((p) =>
+                      p.project ? (
+                        <a key={p.label} href={`#project-${p.project}`} data-goto={p.project}>
+                          {p.label}
+                        </a>
+                      ) : (
+                        <em key={p.label}>{p.label}</em>
+                      ),
+                    )}
+                  </p>
+                </li>
+              ))}
+            </ol>
+            {/* Every star is a tool: hover the star (or its name) for what it is, click to visit it. */}
+            <div className="sky-labels">
+              {FIGURES.flatMap((f, fi) =>
+                f.stars.map((st, si) => {
+                  if (!st.label) return null;
+                  const t = tech[st.label];
+                  return (
+                    <a
+                      key={`${fi}-${si}`}
+                      className={["sky-label", st.key ? "is-key" : "", st.lang ? "is-lang" : ""].filter(Boolean).join(" ")}
+                      data-fig={fi}
+                      data-star={si}
+                      href={t?.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      tabIndex={-1}
+                    >
+                      {/* Sits right on the star (moved every frame by AboutSky). */}
+                      <span className="sky-hit" />
+                      <span className="sky-name">
+                        {st.lang ? <i>&lt;/&gt;</i> : null}
+                        {st.label}
+                      </span>
+                      {t ? (
+                        <span className="sky-card">
+                          <span className="sky-card-bar">
+                            <i />
+                            <i />
+                            <i />
+                            <span className="sky-card-title">{st.label}</span>
+                          </span>
+                          <span className="sky-card-info">{t.info}</span>
+                          <span className="sky-card-url">
+                            <svg viewBox="0 0 16 16" aria-hidden>
+                              <path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2M3.5 7h9v6.5h-9z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                            </svg>
+                            <span className="sky-type">
+                              {Array.from(t.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/.*$/, "")).map((c, ci) => (
+                                <span key={ci} style={{ "--i": ci } as React.CSSProperties}>
+                                  {c}
+                                </span>
+                              ))}
+                            </span>
+                            <span className="sky-go">↗</span>
+                          </span>
+                        </span>
+                      ) : null}
+                    </a>
+                  );
+                }),
+              )}
+            </div>
+          </div>
+
         </section>
 
-        <section className="marquee" data-section="marquee">
-          <MarqueeRow />
-          <MarqueeRow reverse />
-        </section>
 
         <section id="work" className="work" data-section="work">
           <div className="work-track">
@@ -172,14 +319,16 @@ export default function Home() {
               <p className="work-count">({String(projects.length).padStart(2, "0")})</p>
             </div>
             {projects.map((p, i) => (
-              <a
-                key={p.title}
-                href={p.href}
-                target="_blank"
-                rel="noreferrer"
-                className="panel"
-              >
-                <div className="panel-media">
+              <article key={p.id} id={`project-${p.id}`} className="panel" data-project={p.id}>
+                {/* The picture opens the main thing (the demo if there is one); the capsules below are the real buttons. */}
+                <a
+                  className="panel-media"
+                  href={p.links.demo || p.links.source}
+                  target="_blank"
+                  rel="noreferrer"
+                  tabIndex={-1}
+                  aria-hidden
+                >
                   {/* Loaded + played only near the viewport (see Motion.tsx); the poster paints instantly. */}
                   <video
                     className="panel-img"
@@ -189,15 +338,11 @@ export default function Home() {
                     loop
                     playsInline
                     preload="none"
-                    aria-label={p.title}
-                    style={"focus" in p ? { objectPosition: p.focus } : undefined}
+                    aria-label={`${p.title} preview`}
+                    style={p.focus ? { objectPosition: p.focus } : undefined}
                   />
-                  <span className="panel-go" aria-hidden>
-                    <svg viewBox="0 0 24 24" width="22" height="22">
-                      <path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                </div>
+                  <MediaFx links={p.links} />
+                </a>
                 <div className="panel-info">
                   <span className="panel-index">{String(i + 1).padStart(2, "0")}</span>
                   <h3 className="panel-title">
@@ -205,8 +350,9 @@ export default function Home() {
                   </h3>
                   <p className="panel-desc">{p.description}</p>
                   <p className="panel-meta">{p.stack}</p>
+                  <ProjectActions title={p.title} links={p.links} />
                 </div>
-              </a>
+              </article>
             ))}
             <a href={github.href} target="_blank" rel="noreferrer" className="panel-more" aria-label={`And much more on GitHub: ${github.handle}`}>
               <h3 className="more-title">
@@ -239,6 +385,7 @@ export default function Home() {
                   <CopyHandle label={s.label} handle={s.handle} />
                 ) : (
                   <a
+                    className="chrome-pill"
                     href={s.href}
                     target={s.href?.startsWith("http") ? "_blank" : undefined}
                     rel="noreferrer"
@@ -252,6 +399,8 @@ export default function Home() {
           </ul>
           {/* The bubble garden: scroll past the links and there's a floor for the cat and the flowers. */}
           <div className="garden" aria-hidden />
+          {/* The floor of the whole page: a meadow (ground in Backdrop.tsx, blades in stage/Grass.tsx). */}
+          <div className="ground">
           <footer className="footer">
             <span>
               © {new Date().getFullYear()} {profile.handle}
@@ -265,6 +414,7 @@ export default function Home() {
               · CC BY 4.0
             </span>
           </footer>
+          </div>
         </section>
       </main>
     </Experience>

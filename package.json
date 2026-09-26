@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "letters": "node scripts/build-letters.ts",
     "cat": "node scripts/single-cat.mjs"
   },
   "dependencies": {

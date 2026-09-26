@@ -107,8 +107,8 @@ export function flowerGeometries() {
   return (geometries ??= build());
 }
 
-// Pastel petals with a holographic rim; mint stems.
-export const PETALS = ["#ffb3e2", "#d6c2ff", "#b3d4ff", "#ffcfe6", "#c4f1ff", "#ffd9c2"];
+// Candy petals with a holographic rim; green stems (they grow out of the grass).
+export const PETALS = ["#ff8fcf", "#b89cff", "#7fb8ff", "#ffb0d6", "#fff27a", "#ffa98a"];
 
 let materials: {
   stem: THREE.Material;
@@ -118,8 +118,8 @@ let materials: {
 
 export function flowerMaterials() {
   return (materials ??= {
-    stem: createHolo({ color: "#b5f0d6", rim: 0.75, roughness: 0.12, envMapIntensity: 1.2 }),
-    center: createHolo({ color: "#fff1b8", rim: 0.6, roughness: 0.1, envMapIntensity: 1.3 }),
-    petals: PETALS.map((c) => createHolo({ color: c, rim: 0.9, roughness: 0.08, envMapIntensity: 1.5 })),
+    stem: createHolo({ color: "#5fbf5a", rim: 0.4, roughness: 0.3, envMapIntensity: 0.5 }),
+    center: createHolo({ color: "#ffd84d", rim: 0.4, roughness: 0.25, envMapIntensity: 0.55 }),
+    petals: PETALS.map((c) => createHolo({ color: c, rim: 0.6, roughness: 0.2, envMapIntensity: 0.6 })),
   });
 }

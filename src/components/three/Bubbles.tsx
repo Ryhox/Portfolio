@@ -15,13 +15,6 @@ const BUBBLES: { sec: string; v: number; x: number; z: number; r: number }[] = [
   { sec: "hero", v: 0.62, x: -0.62, z: 0.4, r: 0.26 },
   { sec: "hero", v: 0.66, x: 0.28, z: 0.8, r: 0.3 },
   { sec: "hero", v: 0.86, x: 0.88, z: -0.4, r: 0.2 },
-  { sec: "intro", v: 0.3, x: 0.52, z: 0.3, r: 0.5 },
-  { sec: "intro", v: 0.55, x: 0.84, z: -1.5, r: 0.24 },
-  { sec: "intro", v: 0.72, x: 0.62, z: 0.6, r: 0.16 },
-  { sec: "intro", v: 1.05, x: -0.7, z: -0.8, r: 0.3 },
-  { sec: "marquee", v: 0.05, x: 0.35, z: 0.9, r: 0.22 },
-  { sec: "marquee", v: 0.62, x: -0.3, z: -1, r: 0.34 },
-  { sec: "marquee", v: 0.85, x: 0.8, z: 0.2, r: 0.18 },
   { sec: "contact", v: 0.18, x: -0.82, z: -0.6, r: 0.36 },
   { sec: "contact", v: 0.4, x: 0.86, z: 0.3, r: 0.22 },
   { sec: "contact", v: 0.62, x: -0.5, z: 0.5, r: 0.16 },
@@ -151,7 +144,7 @@ function PopEffects() {
     () =>
       Array.from({ length: BURSTS }, () => ({
         ring: new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, depthWrite: false }),
-        drop: new THREE.MeshBasicMaterial({ color: "#fbeaff", transparent: true, depthWrite: false }),
+        drop: new THREE.MeshBasicMaterial({ color: "#f1f8ff", transparent: true, depthWrite: false }),
       })),
     [],
   );
